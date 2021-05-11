@@ -56,7 +56,7 @@ with DAG("user_processing",
         endpoint="api/",
         method="GET",
         response_filter=lambda response: json.loads(response.text),
-        log_response=True)
+        log_response=False)
 
     processing_user = PythonOperator(task_id="processing_user",
                                      python_callable=_processing_user)
