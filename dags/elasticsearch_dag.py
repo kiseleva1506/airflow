@@ -1,6 +1,7 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from elasticsearch_plugin.hooks.elastic_hook import ElasticHook
+from elasticsearch_plugin.operators.postgres_to_elastic import PostgresToElasticOperator
 
 from datetime import datetime
 
@@ -15,7 +16,16 @@ with DAG("elasticsearch_dag",
          default_args=default_args,
          catchup=False) as dag:
     
-   print_es_info = PythonOperator(
+    print_es_info = PythonOperator(
        task_id="print_es_info",
        python_callable=_print_es_info
-   )
+    )
+
+    connections_to_es = PostgresToElasticOperator(
+        task_id="connections_to_es",
+        sql="select * from connection;",
+        index="connections"
+    )
+
+    print_es_info >> connections_to_es
+    
